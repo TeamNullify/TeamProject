@@ -1,6 +1,5 @@
 import javax.swing.*;
 
-import java.awt.GroupLayout;
 import java.awt.event.*;
 
 public class UI implements ActionListener {
