@@ -3,6 +3,11 @@ import java.awt.event.*;
 
 public class UI implements ActionListener {
 
+    /**
+    @author Nathaniel Mann,
+    @version 0.1
+    This will build the UI for the basic home page and not much else. Contains our buttons and other things
+    */
     public void buildUI() {
 
         JFrame window = new JFrame("Home Renovation Tool");
