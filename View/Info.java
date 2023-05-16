@@ -1,5 +1,4 @@
-import javax.swing.*;
-import java.awt.event.*;
+package View;
 
 public class Info {
 

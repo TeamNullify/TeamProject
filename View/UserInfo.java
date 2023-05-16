@@ -1,3 +1,5 @@
+package View;
+//import org.json.*;
 public class UserInfo {
     private static String userName;
     private static String userEmail;

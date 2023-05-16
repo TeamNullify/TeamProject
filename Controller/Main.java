@@ -1,5 +1,5 @@
-import javax.swing.*;
-import java.awt.event.*;
+package Controller;
+import View.UI;
 
 public class Main {
     static UI UIBuilder = new UI();
