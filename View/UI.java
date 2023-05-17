@@ -37,14 +37,68 @@ public class UI implements ActionListener {
         window.setJMenuBar(menuBar);
 
         aboutButton.addActionListener(new ActionListener() {
-
             @Override
             public void actionPerformed(final ActionEvent theEvent) {
-                JOptionPane.showMessageDialog(null, 
-                "Username: " + UserInfo.getName() + "\nUser email: " + UserInfo.getEmail() 
-                + "\nDeveloped by Team Nullify\n"
-                + "\nDevelopers:\nNate Mann\nAnthony Green\nChristopher Yuan\nElroy Mbabazi\nAbdel Rahman Abudayyah",
-                Info.getVersion(), 1);
+                JPanel panel = new JPanel();
+                panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+                JLabel nameLabel = new JLabel("Username: ");
+                JTextField nameField = new JTextField(UserInfo.getName(), 20);
+                panel.add(nameLabel);
+                panel.add(nameField);
+        
+                JLabel emailLabel = new JLabel("User Email: ");
+                JTextField emailField = new JTextField(UserInfo.getEmail(), 20);
+                panel.add(emailLabel);
+                panel.add(emailField);
+        
+                // Additional text
+                String additionalText = "\nDeveloped by Team Nullify\n";
+                JLabel additionalLabel = new JLabel(additionalText);
+                panel.add(additionalLabel);
+
+                String additionalText1 = "\nDevelopers:\n";
+                JLabel additionalLabel1 = new JLabel(additionalText1);
+                panel.add(additionalLabel1);
+
+                String additionalText2 = "Nate Mann\n";
+                JLabel additionalLabel2 = new JLabel(additionalText2);
+                panel.add(additionalLabel2);
+
+                String additionalText3 =  "Anthony Green\n";
+                JLabel additionalLabel3 = new JLabel(additionalText3);
+                panel.add(additionalLabel3);
+
+                String additionalText4 = "Christopher Yuan\n";
+                JLabel additionalLabel4 = new JLabel(additionalText4);
+                panel.add(additionalLabel4); 
+
+                String additionalText5 = "Elroy Mbabazi\n";
+                JLabel additionalLabel5 = new JLabel(additionalText5);
+                panel.add(additionalLabel5);
+
+                String additionalText6 = "Abdel Rahman Abudayyah";
+                JLabel additionalLabel6 = new JLabel(additionalText6);
+                panel.add(additionalLabel6);
+        
+                int result = JOptionPane.showConfirmDialog(null, panel, "About",
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        
+                if (result == JOptionPane.OK_OPTION) {
+                    String username = nameField.getText();
+                    String email = emailField.getText();
+                    if (!isValidUsername(username)) {
+                        JOptionPane.showMessageDialog(null, "Invalid username,Please Try Again.");
+                        return;
+                    }
+                    if (!isValidEmail(email)) {
+                        JOptionPane.showMessageDialog(null, "Invalid email address,Please Try Again.");
+                        return;
+                    }
+                    UserInfo.setName(username);
+                    UserInfo.setEmail(email);
+                    storeUserInfo();
+                }
             }
         });
         window.setVisible(false);
@@ -128,43 +182,54 @@ public class UI implements ActionListener {
         return pattern.matcher(username).matches();
     }
      // Store user info in JSON file
-     private void storeUserInfo() {
-        JSONArray existingUserInfo = retrieveUserInfo();
-        JSONObject userObject = new JSONObject();
-        userObject.put("name", UserInfo.getName());
-        userObject.put("email", UserInfo.getEmail());
-    
-        if (existingUserInfo != null) {
-            // Check if user information already exists in the array
-            boolean userExists = false;
-            for (Object obj : existingUserInfo) {
+private void storeUserInfo() {
+    JSONArray existingUserInfo = retrieveUserInfo();
+    JSONObject userObject = new JSONObject();
+    userObject.put("name", UserInfo.getName());
+    userObject.put("email", UserInfo.getEmail());
+
+    if (existingUserInfo != null) {
+        // Check if user information already exists in the array
+        boolean userExists = false;
+        for (Object obj : existingUserInfo) {
+            if (obj instanceof JSONObject) {
+                JSONObject existingUser = (JSONObject) obj;
+                String existingName = (String) existingUser.get("name");
+                String existingEmail = (String) existingUser.get("email");
+                if (existingName.equals(UserInfo.getName()) && existingEmail.equals(UserInfo.getEmail())) {
+                    userExists = true;
+                    break;
+                }
+            }
+        }
+
+        if (!userExists) {
+            // Remove the existing user object from the array
+            existingUserInfo.removeIf(obj -> {
                 if (obj instanceof JSONObject) {
                     JSONObject existingUser = (JSONObject) obj;
                     String existingName = (String) existingUser.get("name");
                     String existingEmail = (String) existingUser.get("email");
-                    if (existingName.equals(UserInfo.getName()) && existingEmail.equals(UserInfo.getEmail())) {
-                        userExists = true;
-                        break;
-                    }
+                    return existingName.equals(UserInfo.getName()) || existingEmail.equals(UserInfo.getEmail());
                 }
-            }
-    
-            if (!userExists) {
-                // Add the user object to the existing user info array
-                existingUserInfo.add(userObject);
-            }
-        } else {
-            // If no existing information found, create a new array with the current user
-            existingUserInfo = new JSONArray();
+                return false;
+            });
+
+            // Add the updated user object to the array
             existingUserInfo.add(userObject);
         }
-    
-        try (FileWriter file = new FileWriter(JSON_FILE_PATH)) {
-            file.write(existingUserInfo.toJSONString());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    } else {
+        // If no existing information found, create a new array with the current user
+        existingUserInfo = new JSONArray();
+        existingUserInfo.add(userObject);
     }
+
+    try (FileWriter file = new FileWriter(JSON_FILE_PATH)) {
+        file.write(existingUserInfo.toJSONString());
+    } catch (IOException e) {
+        e.printStackTrace();
+    }
+}
 
     // Retrieve user info from JSON file
     private JSONArray retrieveUserInfo() {
@@ -188,13 +253,4 @@ public class UI implements ActionListener {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
     }
-    // private void buildAboutPopup(){
-
-    // }
-
-    // public void actionPerformed(ActionEvent e) {    
-    //     if(e.getSource()=="About")  {  
-    //         buildAboutPopup();
-    //     }   
-    // }
 }
