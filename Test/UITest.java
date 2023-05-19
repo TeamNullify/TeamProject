@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import View.UI;
+import model.ValidChecker;
 
 public class UITest {
     private UI ui;
@@ -23,20 +24,20 @@ public class UITest {
 
     @Test
     public void testIsValidEmail() {
-        assertTrue(ui.isValidEmail("user@example.com"));
-        assertFalse(ui.isValidEmail("user@example"));
-        assertFalse(ui.isValidEmail("userexample.com"));
-        assertFalse(ui.isValidEmail("user@"));
-        assertFalse(ui.isValidEmail("@example.com"));
+        assertTrue(ValidChecker.isValidEmail("user@example.com"));
+        assertFalse(ValidChecker.isValidEmail("user@example"));
+        assertFalse(ValidChecker.isValidEmail("userexample.com"));
+        assertFalse(ValidChecker.isValidEmail("user@"));
+        assertFalse(ValidChecker.isValidEmail("@example.com"));
     }
 
     @Test
     public void testIsValidUsername() {
-        assertTrue(ui.isValidUsername("user123"));
-        assertFalse(ui.isValidUsername(""));
-        assertFalse(ui.isValidUsername("a"));
-        assertFalse(ui.isValidUsername("user@example.com"));
-        assertFalse(ui.isValidUsername("user_123!"));
+        assertTrue(ValidChecker.isValidUsername("user123"));
+        assertFalse(ValidChecker.isValidUsername(""));
+        assertFalse(ValidChecker.isValidUsername("a"));
+        assertFalse(ValidChecker.isValidUsername("user@example.com"));
+        assertFalse(ValidChecker.isValidUsername("user_123!"));
     }
 }
 
