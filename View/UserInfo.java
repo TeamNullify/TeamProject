@@ -3,9 +3,18 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
+import java.awt.Desktop;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+
+import javax.swing.JFileChooser;
 
 import org.json.simple.JSONArray;
 
@@ -95,5 +104,50 @@ public static void storeUserInfo() {
     }
 
     return userInfoArray;
+    }
+
+    public static void exportSettingsAndData() {
+        // Retrieve user info from the JSON file
+        JSONArray userInfoArray = retrieveUserInfo();
+    
+        // Check if user info is available
+        if (userInfoArray != null && userInfoArray.size() > 0) {
+            // Convert the JSON array to a formatted string
+            String exportData = userInfoArray.toJSONString();
+            String exportFileName = "user_info_export.json";  // Modify with your desired file name
+    
+            try {
+                // Create a temporary file
+                Path tempFilePath = Files.createTempFile("export", ".json");
+    
+                // Write the export data to the file
+                try (BufferedWriter writer = Files.newBufferedWriter(tempFilePath, StandardCharsets.UTF_8)) {
+                    writer.write(exportData);
+                }
+    
+                // Show the file chooser dialog for saving the file
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setSelectedFile(new File(exportFileName));
+    
+                int result = fileChooser.showSaveDialog(UI.window);
+    
+                if (result == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    // Copy the temporary file to the selected destination
+                    Files.copy(tempFilePath, selectedFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+    
+                    // Open the exported file using the default application
+                    Desktop.getDesktop().open(selectedFile);
+                }
+    
+                // Delete the temporary file
+                Files.delete(tempFilePath);
+            } catch (IOException e) {
+                e.printStackTrace();
+                // Handle any exceptions that occur during export
+            }
+        } else {
+            System.out.println("No user info available to export.");
+        }
     }
 }

@@ -19,7 +19,7 @@ public class UI implements ActionListener {
     // JSON file path
     // public static final String JSON_FILE_PATH = "user_info.json";
 
-    public JFrame window = new JFrame("Home Renovation Tool");
+    public static JFrame window = new JFrame("Home Renovation Tool");
 
     public Component buildUI() {
         window.setSize(400, 300);
@@ -72,6 +72,17 @@ public class UI implements ActionListener {
         // Set the shape of the frame to have rounded edges
         int cornerRadius = 20;  // Adjust the corner radius as needed
         window.setShape(new RoundRectangle2D.Double(0, 0, window.getWidth(), window.getHeight(), cornerRadius, cornerRadius));
+
+        // Export Button
+        JButton exportButton = new JButton("Export");
+        exportButton.addActionListener(this);
+        exportButton.addActionListener(e -> {
+            UserInfo.exportSettingsAndData();
+        });
+        customizeButton(exportButton);
+
+        buttonGbc.gridx = 2;  // Adjust the grid position as needed
+        toolbarPanel.add(exportButton, buttonGbc);
         aboutButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent theEvent) {
@@ -208,4 +219,5 @@ public class UI implements ActionListener {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'actionPerformed'");
     }
+
 }
