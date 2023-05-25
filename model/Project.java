@@ -34,6 +34,7 @@ public class Project {
         JButton loadButton = new JButton("Load Project");
         JButton saveButton = new JButton("Save Project");
         JButton backButton = new JButton("Back");
+        JButton createFolderButton = new JButton("Create Folder");
 
         loadButton.addActionListener(e -> loadFile());
         saveButton.addActionListener(e -> saveFile());
@@ -41,10 +42,12 @@ public class Project {
             projectFrame.setVisible(false);
             ui.getMainFrame().setVisible(true);
         });
+        createFolderButton.addActionListener(e -> createFolder());
 
         JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         toolbarPanel.add(loadButton);
         toolbarPanel.add(saveButton);
+        toolbarPanel.add(createFolderButton);
         toolbarPanel.add(backButton);
 
         filePanel = new JPanel(new BorderLayout());
@@ -58,9 +61,9 @@ public class Project {
 
         projectFrame.add(mainPanel);
 
-        displayFiles(fileTextArea);
-
         projectFrame.setVisible(true);
+
+        displayFiles(fileTextArea);
     }
 
     private void displayFiles(JTextArea fileTextArea) {
@@ -88,9 +91,15 @@ public class Project {
                             String fileName = (String) projectJson.get("fileName");
                             String filePath = (String) projectJson.get("filePath");
                             if (fileName != null && filePath != null) {
-                                JButton fileButton = new JButton(fileName);
-                                fileButton.addActionListener(e -> openFile(filePath));
-                                buttonPanel.add(fileButton);
+                                if (isFolder(filePath)) {
+                                    JButton folderButton = new JButton(fileName + " (Folder)");
+                                    folderButton.addActionListener(e -> openFolder(filePath));
+                                    buttonPanel.add(folderButton);
+                                } else {
+                                    JButton fileButton = new JButton(fileName);
+                                    fileButton.addActionListener(e -> openFile(filePath));
+                                    buttonPanel.add(fileButton);
+                                }
                             }
                         }
                     }
@@ -109,9 +118,13 @@ public class Project {
                     fileTextArea.setText("");
                     fileTextArea.setEditable(false);
 
+                    // Clear the existing components from the filePanel
                     filePanel.removeAll();
-                    filePanel.add(scrollPane);
 
+                    // Add the scroll pane to the filePanel
+                    filePanel.add(scrollPane, BorderLayout.CENTER);
+
+                    // Revalidate the filePanel to update the layout
                     filePanel.revalidate();
                 } else {
                     fileTextArea.setText("No projects available.");
@@ -122,6 +135,11 @@ public class Project {
         } catch (IOException | ParseException e) {
             e.printStackTrace();
         }
+    }
+
+    private boolean isFolder(String filePath) {
+        File file = new File(filePath);
+        return file.exists() && file.isDirectory();
     }
 
     public void openFile(String filePath) {
@@ -165,15 +183,36 @@ public class Project {
             while ((data = fileReader.read()) != -1) {
                 fileContent.append((char) data);
             }
+
             JTextArea textArea = new JTextArea(fileContent.toString());
-            textArea.setEditable(false);
             JScrollPane scrollPane = new JScrollPane(textArea);
+
+            JButton saveButton = new JButton("Save");
+            saveButton.addActionListener(e -> saveTextFile(file, textArea.getText()));
+
+            JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            buttonPanel.add(saveButton);
+
+            JPanel contentPanel = new JPanel(new BorderLayout());
+            contentPanel.add(scrollPane, BorderLayout.CENTER);
+            contentPanel.add(buttonPanel, BorderLayout.SOUTH);
+
             JFrame frame = new JFrame(file.getName());
             frame.setSize(400, 300);
             frame.setLocationRelativeTo(null);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-            frame.getContentPane().add(scrollPane);
+            frame.getContentPane().add(contentPanel);
             frame.setVisible(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void saveTextFile(File file, String content) {
+        try (FileWriter fileWriter = new FileWriter(file)) {
+            fileWriter.write(content);
+            fileWriter.flush();
+            JOptionPane.showMessageDialog(null, "File saved successfully.");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -198,12 +237,17 @@ public class Project {
             int returnValue = fileChooser.showOpenDialog(null);
             if (returnValue == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
+                String selectedFilePath = selectedFile.getAbsolutePath();
                 String selectedFileName = selectedFile.getName();
-                if (!projectArray.isEmpty()) {
-                    System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+                boolean fileIsFolder = isFolder(selectedFilePath);
+
+                if (!fileIsFolder && !selectedFilePath.equals(UserInfo.JSON_FILE_PATH)) {
+                    System.out.println("Selected file: " + selectedFilePath);
                     displayFiles(fileTextArea);
-                } else {
-                    System.out.println("No projects available.");
+                } else if (fileIsFolder) {
+                    JOptionPane.showMessageDialog(null, "Selected item is a folder. Please select a file.");
+                } else if (selectedFilePath.equals(UserInfo.JSON_FILE_PATH)) {
+                    JOptionPane.showMessageDialog(null, "Cannot select the project file itself. Please select another file.");
                 }
 
                 boolean fileExists = false;
@@ -218,10 +262,10 @@ public class Project {
                     }
                 }
 
-                if (!fileExists) {
+                if (!fileExists && !fileIsFolder && !selectedFilePath.equals(UserInfo.JSON_FILE_PATH)) {
                     JSONObject projectJson = new JSONObject();
                     projectJson.put("fileName", selectedFileName);
-                    projectJson.put("filePath", selectedFile.getAbsolutePath());
+                    projectJson.put("filePath", selectedFilePath);
                     projectArray.add(projectJson);
 
                     try (FileWriter fileWriter = new FileWriter(UserInfo.JSON_FILE_PATH)) {
@@ -230,6 +274,8 @@ public class Project {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                } else if (fileIsFolder || selectedFilePath.equals(UserInfo.JSON_FILE_PATH)) {
+                    // Do nothing, as the file selected is not valid for adding to the project list.
                 } else {
                     System.out.println("File with the same name already exists.");
                 }
@@ -312,6 +358,94 @@ public class Project {
                     }
                 }
             }
+        }
+    }
+
+    public void createFolder() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int returnValue = fileChooser.showDialog(null, "Create Folder");
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            String folderName = selectedFile.getName();
+            String folderPath = selectedFile.getAbsolutePath();
+
+            if (isFolder(folderPath)) {
+                JOptionPane.showMessageDialog(null, "Folder with the same name already exists.");
+            } else {
+                if (selectedFile.mkdir()) {
+                    JSONObject projectJson = new JSONObject();
+                    projectJson.put("fileName", folderName + " (Folder)");
+                    projectJson.put("filePath", folderPath);
+                    saveFolderToJSON(projectJson);
+                    displayFiles(fileTextArea);
+                } else {
+                    JOptionPane.showMessageDialog(null, "Failed to create folder.");
+                }
+            }
+        }
+    }
+
+    private void saveFolderToJSON(JSONObject folderJson) {
+        JSONParser parser = new JSONParser();
+        JSONArray projectArray;
+        boolean fileExists = false;
+
+        FileReader fileReader = null;
+        FileWriter fileWriter = null;
+        try {
+            fileReader = new FileReader(UserInfo.JSON_FILE_PATH);
+            Object obj = parser.parse(fileReader);
+            projectArray = (JSONArray) obj;
+
+            for (Object projectObj : projectArray) {
+                if (projectObj instanceof JSONObject) {
+                    JSONObject projectJson = (JSONObject) projectObj;
+                    String existingFileName = (String) projectJson.get("fileName");
+                    if (existingFileName != null && folderJson.get("fileName").equals(existingFileName)) {
+                        fileExists = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!fileExists) {
+                projectArray.add(folderJson);
+
+                fileWriter = new FileWriter(UserInfo.JSON_FILE_PATH);
+                fileWriter.write(projectArray.toJSONString());
+                fileWriter.flush();
+                JOptionPane.showMessageDialog(null, "Folder created and added to the project list.");
+            } else {
+                JOptionPane.showMessageDialog(null, "Project with the same name already exists.");
+            }
+        } catch (IOException | ParseException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileReader != null) {
+                try {
+                    fileReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public void openFolder(String folderPath) {
+        if (isFolder(folderPath)) {
+            FolderFrame folderFrame = new FolderFrame();
+            folderFrame.setVisible(true);
+            projectFrame.setVisible(false);
+        } else {
+            JOptionPane.showMessageDialog(null, "Folder not found: " + folderPath);
         }
     }
 }
