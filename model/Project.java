@@ -28,7 +28,7 @@ public class Project {
     }
 
     public void openProjectFrame() {
-        projectFrame.setSize(400, 300);
+        projectFrame.setSize(500, 500);
         projectFrame.setLocationRelativeTo(null);
 
         JButton loadButton = new JButton("Load Project");
@@ -50,16 +50,21 @@ public class Project {
         toolbarPanel.add(createFolderButton);
         toolbarPanel.add(backButton);
 
-        filePanel = new JPanel(new BorderLayout());
+        filePanel = new JPanel();
+        filePanel.setLayout(new BoxLayout(filePanel, BoxLayout.Y_AXIS));
         fileTextArea = new JTextArea(10, 30);
         JScrollPane scrollPane = new JScrollPane(fileTextArea);
         filePanel.add(scrollPane);
 
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(toolbarPanel, BorderLayout.SOUTH);
-        mainPanel.add(filePanel, BorderLayout.CENTER);
+        //JPanel mainPanel = new JPanel(new BorderLayout());
+        //mainPanel.add(toolbarPanel, BorderLayout.SOUTH);
+        //mainPanel.add(filePanel, BorderLayout.CENTER);
 
-        projectFrame.add(mainPanel);
+        //projectFrame.add(mainPanel);
+        projectFrame.add(toolbarPanel, BorderLayout.SOUTH);
+        projectFrame.add(filePanel, BorderLayout.CENTER);
+
+        //projectFrame.add(mainPanel);
 
         projectFrame.setVisible(true);
 
@@ -83,7 +88,8 @@ public class Project {
                             return 0;
                         }
                     });
-                    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+                    JPanel buttonPanel = new JPanel();
+                    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
 
                     for (Object projectObj : projectArray) {
                         if (projectObj instanceof JSONObject) {
@@ -111,7 +117,7 @@ public class Project {
                     fileTextArea.setEditable(false);
 
                     JPanel contentPanel = new JPanel(new BorderLayout());
-                    contentPanel.add(fileTextArea, BorderLayout.CENTER);
+                    //contentPanel.add(fileTextArea, BorderLayout.CENTER);
                     contentPanel.add(buttonContainerPanel, BorderLayout.NORTH);
 
                     JScrollPane scrollPane = new JScrollPane(contentPanel);
@@ -122,7 +128,9 @@ public class Project {
                     filePanel.removeAll();
 
                     // Add the scroll pane to the filePanel
-                    filePanel.add(scrollPane, BorderLayout.CENTER);
+                    //filePanel.add(scrollPane, BorderLayout.CENTER);
+                    filePanel.add(scrollPane);
+                    filePanel.add(buttonContainerPanel);
 
                     // Revalidate the filePanel to update the layout
                     filePanel.revalidate();
@@ -153,6 +161,8 @@ public class Project {
                         openTextFile(file);
                         break;
                     case "docx":
+                        openFileWithDefaultApplication(file);
+                        break;
                     case "xlsx":
                         openFileWithDefaultApplication(file);
                         break;

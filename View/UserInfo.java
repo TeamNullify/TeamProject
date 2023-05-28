@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.text.BreakIterator;
 
 import javax.swing.JFileChooser;
 
@@ -42,6 +43,20 @@ public class UserInfo {
 
    // Store user info in JSON file
 public static void storeUserInfo(JSONObject filesObject) {
+
+     // Check if the JSON file exists
+     File jsonFile = new File(JSON_FILE_PATH);
+     boolean fileExists = jsonFile.exists();
+
+     if (!fileExists) {
+         try {
+             // Create the JSON file
+             jsonFile.createNewFile();
+         } catch (IOException e) {
+             e.printStackTrace();
+             return; // Exit the method if file creation fails
+         }
+     }
     JSONArray existingUserInfo = retrieveUserInfo();
     JSONObject userObject = new JSONObject();
     userObject.put("name", UserInfo.getName());
@@ -88,8 +103,6 @@ public static void storeUserInfo(JSONObject filesObject) {
         e.printStackTrace();
     }
 }
-
-
     // Retrieve user info from JSON file
     public static JSONArray retrieveUserInfo() {
         JSONParser parser = new JSONParser();
