@@ -49,7 +49,7 @@ public class BudgetPlannerFrame extends JFrame {
 	/**Will make a new object of the new BudgetList to do calculations and hold other information*/
 	private final BudgetList myItems;
 
-	private UI ui;
+	private WindowFrame window;
 
 	/**
 	 * A constructor that will start the GUI
@@ -58,7 +58,7 @@ public class BudgetPlannerFrame extends JFrame {
 		super();
 		this.myItems = new BudgetList();
 		startUp();
-		this.ui = ui;
+		this.window = window;
 	}
 
 	/**
@@ -87,7 +87,7 @@ public class BudgetPlannerFrame extends JFrame {
 
 		backButton.addActionListener(e -> {
             this.setVisible(false);
-            ui.getMainFrame().setVisible(true);
+            window.showWindow();
         });
 		thePanel.add(backButton);
 		nameButton.addActionListener(new ActionListener() {

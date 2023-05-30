@@ -14,6 +14,7 @@ import org.json.simple.parser.ParseException;
 
 import View.UI;
 import View.UserInfo;
+import View.WindowFrame;
 
 public class Project {
 
@@ -22,10 +23,12 @@ public class Project {
     private JPanel filePanel;
     public static JFrame projectFrame = new JFrame("Project");
     public JTextArea fileTextArea;
+    private WindowFrame window;
 
-    public Project(UI ui) {
-        this.ui = ui;
-    }
+    public Project(WindowFrame window) {
+        //this.ui = ui;
+        this.window = window;
+}
 
     public void openProjectFrame() {
         projectFrame.setSize(500, 500);
@@ -40,7 +43,7 @@ public class Project {
         saveButton.addActionListener(e -> saveFile());
         backButton.addActionListener(e -> {
             projectFrame.setVisible(false);
-            ui.getMainFrame().setVisible(true);
+            window.showWindow();
         });
         createFolderButton.addActionListener(e -> createFolder());
 
@@ -71,7 +74,7 @@ public class Project {
         displayFiles(fileTextArea);
     }
 
-    private void displayFiles(JTextArea fileTextArea) {
+    public void displayFiles(JTextArea fileTextArea) {
         JSONParser parser = new JSONParser();
 
         try (FileReader fileReader = new FileReader(UserInfo.JSON_FILE_PATH)) {
