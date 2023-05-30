@@ -19,6 +19,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 import model.BudgetList;
@@ -28,12 +29,16 @@ import model.Item;
  * A GUI class that will take the input from the user to make items and other things
  * Then it will display all of the information to the user in the GUI
  * @author Nathaniel Mann
- * @version v0.1
+ * @version v0.2
  *
  */
 
 public class BudgetPlannerFrame extends JFrame {
 
+	
+	private JScrollPane jScroll = new JScrollPane();
+	
+	private JPanel jPanel = new JPanel(new FlowLayout());
 	
 	private static final long serialVersionUID = -5920717045729015756L;
 	
@@ -72,15 +77,27 @@ public class BudgetPlannerFrame extends JFrame {
 				SCREEN_SIZE.height / 2 - getHeight() / 2);
 		
 		
-		
+		//run on startup to get user input on the name and budget
+		//has an issue of not knowing what to do on cancel
 		setName();
-		
 		setBudget();
 		
-		System.out.println(myItems.getName());
+		jScroll.getViewport().add(jPanel);
 		
-		System.out.println(myItems.getBudget());
+		jScroll.setVisible(true);
 		
+		jScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
+		add(jScroll, BorderLayout.CENTER);
+		
+		
+		
+//		System.out.println(myItems.getName());
+//		
+//		System.out.println(myItems.getBudget());
+		
+		//Will make new buttons that will then later attach listeners to put on the north area of the JFrame
+		//If the user clicks on the button, it will ask if the user would like to change the values of what they input from before
 		final JPanel thePanel = new JPanel(new GridLayout());
 		final JButton budgetButton = new JButton("Budget: " + numberFormat(myItems.getBudget()));
 		final JButton nameButton = new JButton(myItems.getName());
@@ -114,6 +131,7 @@ public class BudgetPlannerFrame extends JFrame {
 			}	
 		});
 		
+		//Will start a new GUI defined in a method below to make new items to add to the class
 		addItemButton.addActionListener(new ActionListener() {
 			@Override 
 			public void actionPerformed(final ActionEvent theEvent) {
@@ -189,7 +207,9 @@ public class BudgetPlannerFrame extends JFrame {
 		}
 	}
 	
-	
+	/**
+	 * Makes a new item
+	 */
 	private void addItem() {
 		
 		
@@ -199,6 +219,7 @@ public class BudgetPlannerFrame extends JFrame {
 		
 		JPanel panel = new JPanel();
 		
+		//Sets the window to a certain size to not be edited and keep everything in line
 		itemInfo.setResizable(false);
 		
 		itemInfo.setSize(SCREEN_SIZE.width / 5, SCREEN_SIZE.height / 5);
@@ -206,7 +227,8 @@ public class BudgetPlannerFrame extends JFrame {
 		itemInfo.setLocation(SCREEN_SIZE.width / 2 - getWidth() / 5,
 				SCREEN_SIZE.height / 2 - getHeight() / 5);
 		
-		
+		//Makes instruction that cannot be changed by the user that will tell them what goes in which box
+		//Makes sure that they cant be chagned
 		JTextField thePriceInstruction = new JTextField("Please enter the price of the item");
 		JTextField theNameInstruction = new JTextField("Please enter the name of the item");
 		JTextField theQuantityInstruction = new JTextField
@@ -216,10 +238,13 @@ public class BudgetPlannerFrame extends JFrame {
 		thePriceInstruction.setEditable(false);
 		theNameInstruction.setEditable(false);
 		theQuantityInstruction.setEditable(false);
+		
+		//Makes new text fields the user can add to 
 		JTextField thePrice = new JTextField(40);
 	    JTextField theName = new JTextField(40);
 	    JTextField theQuantity = new JTextField(40);
 	    
+	    //Cancels the item creation and closes the GUI
 	    JButton save = new JButton("Save");
 	    JButton cancel = new JButton("Cancel");
 	    cancel.addActionListener(new ActionListener() {
@@ -230,7 +255,7 @@ public class BudgetPlannerFrame extends JFrame {
 			});
 	    
 	    
-	    
+	    //Puts all of the text fields and buttons into proper areas
 	    JPanel thePanel = new JPanel();
 	    thePanel.setLayout(new FlowLayout());
 	    thePanel.add(cancel);
@@ -247,6 +272,8 @@ public class BudgetPlannerFrame extends JFrame {
 		panel.add(theQuantityInstruction);
 		panel.add(theQuantity);
 
+		//This action listener will save the items info into the item class and add it in to the item list from above
+		
 		save.addActionListener(new ActionListener() {
 	    	@Override
 	    	public void actionPerformed(final ActionEvent theEvent) {
@@ -279,7 +306,8 @@ public class BudgetPlannerFrame extends JFrame {
 	    			} else {
 	    				Item theItem = new Item(itemName, itemPrice, itemQuantity);
 	   					ITEM_LIST.add(theItem); 
-	    				flag = true;
+	    				//flag = true;
+	   					itemToPanel(theItem);
 	    				itemInfo.dispose();
 	    			}
 	   			} catch(final NumberFormatException e) {
@@ -298,7 +326,174 @@ public class BudgetPlannerFrame extends JFrame {
 		itemInfo.add(panel);
 		
 		itemInfo.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		
+		System.out.println(ITEM_LIST);
 	}
+	
+	private void itemToPanel(Item theItem) {
+		JButton button = new JButton(theItem.toString());
+		button.addActionListener(new ActionListener() {
+			@Override 
+			public void actionPerformed(final ActionEvent theEvent) {
+				Item editedItem = addEditedItem(theItem, button);
+//				button.setText(editedItem.toString());
+//				button.revalidate();
+//				button.repaint();
+			}
+		});
+		jPanel.add(button);
+		jPanel.revalidate();
+		jPanel.repaint();
+	}
+	
+	private Item addEditedItem(Item theItem, JButton theButton) {
+		
+		
+		JFrame itemInfo = new JFrame("Add Item details");
+		
+		itemInfo.setVisible(true);
+		
+		JPanel panel = new JPanel();
+		
+		//Sets the window to a certain size to not be edited and keep everything in line
+		itemInfo.setResizable(false);
+		
+		itemInfo.setSize(SCREEN_SIZE.width / 5, SCREEN_SIZE.height / 5);
+		
+		itemInfo.setLocation(SCREEN_SIZE.width / 2 - getWidth() / 5,
+				SCREEN_SIZE.height / 2 - getHeight() / 5);
+		
+		//Makes instruction that cannot be changed by the user that will tell them what goes in which box
+		//Makes sure that they cant be chagned
+		JTextField thePriceInstruction = new JTextField("Please enter the price of the item");
+		JTextField theNameInstruction = new JTextField("Please enter the name of the item");
+		JTextField theQuantityInstruction = new JTextField
+				("Please the number of this item you are buying");
+//		JTextField thePriorityInstruction = new JTextField
+//				("On a scale of one to 10 how important is this item?");
+		thePriceInstruction.setEditable(false);
+		theNameInstruction.setEditable(false);
+		theQuantityInstruction.setEditable(false);
+		
+		//Makes new text fields the user can add to 
+		JTextField thePrice = new JTextField(theItem.getPrice().toString());
+		thePrice.setColumns(40);
+	    JTextField theName = new JTextField(theItem.getName());
+	    theName.setColumns(40);
+	    JTextField theQuantity = new JTextField(String.valueOf(theItem.getQuantity()));
+	    theQuantity.setColumns(40);
+	    
+	    //Cancels the item creation and closes the GUI
+	    JButton save = new JButton("Save");
+	    JButton cancel = new JButton("Cancel");
+	    JButton delete = new JButton("Delete");
+	    cancel.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent theEvent) {
+				itemInfo.dispose();
+				}
+			});
+	    
+	    delete.addActionListener(new ActionListener() {
+		@Override
+		public void actionPerformed(final ActionEvent theEvent) {
+			int response = JOptionPane.showConfirmDialog(null, 
+					"Are you sure you want to delete this item?", "Please confirm", 
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+			if(response == JOptionPane.OK_OPTION) {
+				JOptionPane.showMessageDialog(null, "The item has been deleted");
+				ITEM_LIST.remove(theItem);
+				jPanel.remove(theButton);
+				jPanel.revalidate();
+				jPanel.repaint();
+				
+			}
+			itemInfo.dispose();
+			}
+		});
+	    	
+
+	    
+	    
+	    //Puts all of the text fields and buttons into proper areas
+	    JPanel thePanel = new JPanel();
+	    thePanel.setLayout(new FlowLayout());
+	    thePanel.add(cancel);
+	    thePanel.add(save);
+	    thePanel.add(delete);
+	    itemInfo.add(thePanel, BorderLayout.SOUTH);
+
+	    
+		panel.add(thePriceInstruction);
+		panel.add(thePrice);
+		
+		panel.add(theNameInstruction);
+		panel.add(theName);
+		
+		panel.add(theQuantityInstruction);
+		panel.add(theQuantity);
+
+		//This action listener will save the items info into the item class and add it in to the item list from above
+		
+		save.addActionListener(new ActionListener() {
+	    	@Override
+	    	public void actionPerformed(final ActionEvent theEvent) {
+	    		String price = thePrice.getText();
+	    		
+	    		String itemName = theName.getText();
+	    		String quantity = theQuantity.getText();
+	    		boolean flag = false;
+	    		BigDecimal itemPrice = null;
+	    		int itemQuantity = 0;
+	    		
+
+	    		try{
+	    			itemPrice = new BigDecimal(Double.parseDouble(price));
+	    			itemQuantity = Integer.parseInt(quantity);
+
+	    			if(itemPrice == null|| itemName.isEmpty() || itemQuantity == 0) {
+	    				//System.out.println("it is indeed null");
+	   					JOptionPane.showMessageDialog(null,
+	   							"Please fill in all of the blanks", 
+	   							"Input Error", JOptionPane.ERROR_MESSAGE);
+	    			    
+	    				
+	    			} else if (itemPrice.compareTo(BigDecimal.ZERO) <= 0 
+	    					   || itemQuantity <= 0){
+	    				JOptionPane.showMessageDialog(null,
+	   							"Please input a positive value", 
+	   							"Input Error", JOptionPane.ERROR_MESSAGE);
+	    				
+	    			} else {
+	    				//flag = true;
+	    				theItem.setName(itemName);
+	    				theItem.setQuantity(itemQuantity);
+	    				theItem.setPrice(itemPrice);
+	    				theButton.setText(theItem.toString());
+	    				itemInfo.dispose();
+	    			}
+	   			} catch(final NumberFormatException e) {
+	   				if (itemPrice == null || itemQuantity == 0) { 
+	   					JOptionPane.showMessageDialog(null,
+	    						"Please enter a numerical value",
+		    					"Input error!", JOptionPane.ERROR_MESSAGE);
+	   				}
+	    				
+	    		}
+	    			
+	    		//}
+	    	}
+	    });
+		
+		panel.revalidate();
+		panel.repaint();
+		
+		itemInfo.add(panel);
+		itemInfo.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+		System.out.println(ITEM_LIST);
+		return theItem;
+	}
+	
 	private String numberFormat(final BigDecimal thePrice) {
         final NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
         return nf.format(thePrice);
