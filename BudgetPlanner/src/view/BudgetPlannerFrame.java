@@ -40,6 +40,8 @@ public class BudgetPlannerFrame extends JFrame {
 	
 	private JPanel jPanel = new JPanel(new FlowLayout());
 	
+	private JPanel southJPanel = new JPanel(new FlowLayout());
+	
 	private static final long serialVersionUID = -5920717045729015756L;
 	
 	/**Is used to get the frame of the users computer and set it to a default size*/
@@ -54,6 +56,14 @@ public class BudgetPlannerFrame extends JFrame {
 	/**Will make a new object of the new BudgetList to do calculations and hold other information*/
 	private final BudgetList myItems;
 	
+	private double myBudget;
+	
+	private String myBudgetName;
+	
+	private JButton totalButton;
+	
+	private JButton budgetLeft;
+	
 	/**
 	 * A constructor that will start the GUI 
 	 */
@@ -62,6 +72,11 @@ public class BudgetPlannerFrame extends JFrame {
 		
 		this.myItems = new BudgetList();
 		
+		myBudget = 0;
+		
+		myBudgetName = "";
+		
+		totalButton = new JButton("$0.00");
 		
 		startUp();
 	}
@@ -80,7 +95,17 @@ public class BudgetPlannerFrame extends JFrame {
 		//run on startup to get user input on the name and budget
 		//has an issue of not knowing what to do on cancel
 		setName();
+		
+		if(myBudgetName == "") {
+			return;
+		}
+		
 		setBudget();
+		
+		
+		if(myBudget == 0) {
+			return;
+		}
 		
 		jScroll.getViewport().add(jPanel);
 		
@@ -90,6 +115,12 @@ public class BudgetPlannerFrame extends JFrame {
 		
 		add(jScroll, BorderLayout.CENTER);
 		
+		southJPanel.add(totalButton);
+		budgetLeft = new JButton(numberFormat(myItems.getBudget()));
+		
+		southJPanel.setVisible(true);
+		
+		southJPanel.add(budgetLeft);
 		
 		
 //		System.out.println(myItems.getName());
@@ -104,14 +135,17 @@ public class BudgetPlannerFrame extends JFrame {
 		final JButton addItemButton = new JButton("Add item...");
 		thePanel.add(nameButton);
 		
+	    
+	    
+		
 		
 		nameButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(final ActionEvent theEvent) {
 				
 					int response = JOptionPane.showConfirmDialog(null, 
-							"Would you like to change the name of this budget planner?");
-					if (response == JOptionPane.YES_OPTION) {
+							"Set the name of the budget planner");
+					if (response == JOptionPane.OK_OPTION) {
 						setName();
 						nameButton.setText(myItems.getName());
 					} 
@@ -122,9 +156,9 @@ public class BudgetPlannerFrame extends JFrame {
 			@Override
 			public void actionPerformed(final ActionEvent theEvent) {
 				int response = JOptionPane.showConfirmDialog(null, 
-						"Would you like to change your budget?");
+						"Set your budget for this project");
 				
-				if(response == JOptionPane.YES_OPTION) {
+				if(response == JOptionPane.OK_OPTION) {
 					setBudget();
 					budgetButton.setText("Budget: " + numberFormat(myItems.getBudget()));
 				}
@@ -139,9 +173,13 @@ public class BudgetPlannerFrame extends JFrame {
 			}
 		});
 		
+		
+		
 		thePanel.add(budgetButton);
 		thePanel.add(addItemButton);
 		add(thePanel, BorderLayout.NORTH);
+		
+		add(southJPanel, BorderLayout.SOUTH);
 		
 		setSize(SCREEN_SIZE.width / 2, SCREEN_SIZE.height / 2);
 		
@@ -162,15 +200,27 @@ public class BudgetPlannerFrame extends JFrame {
 	private void setName() {
 		
 		//Biggest issue is if the user hits cancel it will cause an error ask someone how to fix this ? 
-		String nameString = "";
+		String nameString = null;
 		//while(nameString.isEmpty()) {
 			nameString = 
-					   JOptionPane.showInputDialog(null, "Enter a name for this budget", 
-							   						     "");
+					   JOptionPane.showInputDialog(null, "Please input the name of the budget");
+			
+			if((nameString == null || 
+					   (nameString != null && ("".equals(nameString)))) 
+					    && myBudgetName != ""){
+							return;
+					    
+					} else if((nameString == null || 
+							  (nameString != null && ("".equals(nameString))))
+							   && myBudgetName == ""){
+						System.out.println("here?");
+						dispose();
+					    return;
+					}
 			
 		//}
 		
-		
+		myBudgetName = nameString;
 		myItems.setName(nameString);
 		
 	}
@@ -182,19 +232,29 @@ public class BudgetPlannerFrame extends JFrame {
 		
 		//still having the issue of what happens if the user hits cancel dont know what to do
 		
-		double budget = 0;
+
 		
 		boolean flag = false;
 		
+		
 		while(flag != true) {
-			final String budgetValue = JOptionPane.showInputDialog(null, "Please enter your budget");
-			
-			
+
+			String budgetValue = JOptionPane.showInputDialog(null, 
+					"Please enter your budget");
+			if((budgetValue == null || 
+			   (budgetValue != null && ("".equals(budgetValue)))) 
+			    && myBudget != 0){
+			    return;
+			} else if((budgetValue == null || 
+					  (budgetValue != null && ("".equals(budgetValue))))
+					   && myBudget == 0){
+				dispose();
+			    return;
+			}
 			try {
+				myBudget = Double.parseDouble(budgetValue);
 				
-				budget = Double.parseDouble(budgetValue);
-				
-				myItems.setBudget(BigDecimal.valueOf(budget));
+				myItems.setBudget(BigDecimal.valueOf(myBudget));
 				flag = true;
 			} catch (final NumberFormatException e) {
 				if (budgetValue == null) { 
@@ -308,6 +368,8 @@ public class BudgetPlannerFrame extends JFrame {
 	   					ITEM_LIST.add(theItem); 
 	    				//flag = true;
 	   					itemToPanel(theItem);
+	   					showTotal();
+	   					showBudgetLeft();
 	    				itemInfo.dispose();
 	    			}
 	   			} catch(final NumberFormatException e) {
@@ -470,6 +532,8 @@ public class BudgetPlannerFrame extends JFrame {
 	    				theItem.setQuantity(itemQuantity);
 	    				theItem.setPrice(itemPrice);
 	    				theButton.setText(theItem.toString());
+	    				showTotal();
+	    				showBudgetLeft();
 	    				itemInfo.dispose();
 	    			}
 	   			} catch(final NumberFormatException e) {
@@ -498,4 +562,17 @@ public class BudgetPlannerFrame extends JFrame {
         final NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
         return nf.format(thePrice);
     }
+	
+	private void showBudgetLeft() {
+		budgetLeft.setText("Budget Left: " + numberFormat(myItems.getBudgetMinusTotal()));
+		southJPanel.revalidate();
+		southJPanel.repaint();
+	}
+	
+	private void showTotal() {
+		totalButton.setText("Total: " + numberFormat(myItems.calculateTotal(ITEM_LIST)));
+		southJPanel.revalidate();
+		southJPanel.repaint();
+	}
+	
 }
