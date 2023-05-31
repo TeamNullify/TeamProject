@@ -2,7 +2,7 @@
 
 ## Welcome Message
 
-	Hello! The code that you will be reviewing is for 
+	Hello! The code that you will be reviewing is for our budget planner User story
 
 ## User Stories
 
