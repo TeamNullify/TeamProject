@@ -26,14 +26,13 @@ Guidelines for reviewing our code:
 
 4. **Testability** Check to see if the written code is easily testable.
 
+5. **Comments or JavaDoc** Would like to see if there is comments either in-line or for methods for implementation
+
+6. **Naming Conventions** Make sure the names that are being used for variables or other things make sense
+
 
 
 ## Outstanding Questions and Thoughts from the Team
-
-
-*We would like to know how our TextFields and Buttons show on other resolutions or machines. Of course nothing is going to be set and stone so we would like f=some feedback on it 
-
-*We would also like to make sure you can add a good amount of items and edit them if you would like*
 
 *We are still working on the total to be displayed so that is a feature that is not yet implemented*
 
