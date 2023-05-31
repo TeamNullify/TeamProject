@@ -20,15 +20,13 @@ Guidelines for reviewing our code:
 
 1. **Error Handling** Check if exceptions are handled correctly
 
-2. **Consistency** Check if a consistent approach has been made throughout the files
+2. **Readability** Check if the code is easily understood, with meaningful names for variables and a clear purpose
 
-3. **Readability** Check if the code is easily understood, with meaningful names for variables and a clear purpose
+3. **Testability** Check to see if the written code is easily testable.
 
-4. **Testability** Check to see if the written code is easily testable.
+4. **Comments or JavaDoc** Would like to see if there is comments either in-line or for methods for implementation
 
-5. **Comments or JavaDoc** Would like to see if there is comments either in-line or for methods for implementation
-
-6. **Naming Conventions** Make sure the names that are being used for variables or other things make sense
+5. **Naming Conventions** Make sure the names that are being used for variables or other things make sense
 
 
 
