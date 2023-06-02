@@ -233,9 +233,9 @@ public class WindowFrame {
     }
 
     private void openBudgetPlanner() {
-        BudgetPlannerFrame budgetPlanner = new BudgetPlannerFrame();
+        BudgetPlannerFrame budgetPlanner = new BudgetPlannerFrame(this);
         budgetPlanner.startUp();
-        window.setVisible(false);
+        window.dispose();
     }
 
     public void showWindow() {

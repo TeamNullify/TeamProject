@@ -1,7 +1,11 @@
 package model;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
+
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -12,23 +16,28 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 
-import View.UI;
 import View.UserInfo;
 import View.WindowFrame;
 
 public class Project {
 
     private static final String JSON_FILE_EXTENSION = ".json";
-    private UI ui;
     private JPanel filePanel;
     public static JFrame projectFrame = new JFrame("Project");
     public JTextArea fileTextArea;
     private WindowFrame window;
+    // Constants for view options
+    private static final int LIST_VIEW = 1;
+    private static final int GRID_VIEW = 2;
+    public JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+    public Color jetStream = new Color(169, 179, 189);
+    // Current view option
+    private int currentViewOption = LIST_VIEW; // Default to list view
 
     public Project(WindowFrame window) {
-        //this.ui = ui;
         this.window = window;
-}
+        //this.folderFrame = folderFrame;
+    }
 
     public void openProjectFrame() {
         projectFrame.setSize(500, 500);
@@ -47,31 +56,26 @@ public class Project {
         });
         createFolderButton.addActionListener(e -> createFolder());
 
-        JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        // JPanel toolbarPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         toolbarPanel.add(loadButton);
         toolbarPanel.add(saveButton);
         toolbarPanel.add(createFolderButton);
         toolbarPanel.add(backButton);
 
         filePanel = new JPanel();
+        filePanel.setBackground(jetStream);
         filePanel.setLayout(new BoxLayout(filePanel, BoxLayout.Y_AXIS));
         fileTextArea = new JTextArea(10, 30);
         JScrollPane scrollPane = new JScrollPane(fileTextArea);
         filePanel.add(scrollPane);
 
-        //JPanel mainPanel = new JPanel(new BorderLayout());
-        //mainPanel.add(toolbarPanel, BorderLayout.SOUTH);
-        //mainPanel.add(filePanel, BorderLayout.CENTER);
-
-        //projectFrame.add(mainPanel);
         projectFrame.add(toolbarPanel, BorderLayout.SOUTH);
         projectFrame.add(filePanel, BorderLayout.CENTER);
-
-        //projectFrame.add(mainPanel);
 
         projectFrame.setVisible(true);
 
         displayFiles(fileTextArea);
+        createViewOptions();
     }
 
     public void displayFiles(JTextArea fileTextArea) {
@@ -91,8 +95,17 @@ public class Project {
                             return 0;
                         }
                     });
-                    JPanel buttonPanel = new JPanel();
-                    buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.Y_AXIS));
+
+                    // Clear the existing components from the filePanel
+                    filePanel.removeAll();
+
+                    // Create a new panel based on the current view option
+                    JPanel contentPanel = null;
+                    if (currentViewOption == LIST_VIEW) {
+                        contentPanel = new JPanel(new GridLayout(projectArray.size(), 1, 10, 10));
+                    } else if (currentViewOption == GRID_VIEW) {
+                        contentPanel = new JPanel(new GridLayout(0, 4, 10, 10));
+                    }
 
                     for (Object projectObj : projectArray) {
                         if (projectObj instanceof JSONObject) {
@@ -101,39 +114,24 @@ public class Project {
                             String filePath = (String) projectJson.get("filePath");
                             if (fileName != null && filePath != null) {
                                 if (isFolder(filePath)) {
-                                    JButton folderButton = new JButton(fileName + " (Folder)");
+                                    JButton folderButton = createFolderButton(fileName + " (Folder)");
                                     folderButton.addActionListener(e -> openFolder(filePath));
-                                    buttonPanel.add(folderButton);
+                                    contentPanel.add(createMediumButton(folderButton));
                                 } else {
-                                    JButton fileButton = new JButton(fileName);
+                                    String fileExtension = getFileExtension(fileName);
+                                    Icon fileIcon = getFileIcon(fileExtension);
+                                    JButton fileButton = createFileButton(fileName, fileIcon);
                                     fileButton.addActionListener(e -> openFile(filePath));
-                                    buttonPanel.add(fileButton);
+                                    contentPanel.add(createMediumButton(fileButton));
                                 }
                             }
                         }
                     }
 
-                    JPanel buttonContainerPanel = new JPanel(new BorderLayout());
-                    buttonContainerPanel.add(buttonPanel, BorderLayout.NORTH);
-
-                    fileTextArea.setText("");
-                    fileTextArea.setEditable(false);
-
-                    JPanel contentPanel = new JPanel(new BorderLayout());
-                    //contentPanel.add(fileTextArea, BorderLayout.CENTER);
-                    contentPanel.add(buttonContainerPanel, BorderLayout.NORTH);
-
                     JScrollPane scrollPane = new JScrollPane(contentPanel);
-                    fileTextArea.setText("");
-                    fileTextArea.setEditable(false);
-
-                    // Clear the existing components from the filePanel
-                    filePanel.removeAll();
 
                     // Add the scroll pane to the filePanel
-                    //filePanel.add(scrollPane, BorderLayout.CENTER);
                     filePanel.add(scrollPane);
-                    filePanel.add(buttonContainerPanel);
 
                     // Revalidate the filePanel to update the layout
                     filePanel.revalidate();
@@ -147,6 +145,119 @@ public class Project {
             e.printStackTrace();
         }
     }
+
+    private Icon getFileIcon(String fileExtension) {
+        FileSystemView fileSystemView = FileSystemView.getFileSystemView();
+        File tempFile = null;
+        try {
+            tempFile = File.createTempFile("temp", fileExtension);
+            return fileSystemView.getSystemIcon(tempFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (tempFile != null) {
+                tempFile.delete();
+            }
+        }
+        return null;
+    }
+
+    private JButton createFolderButton(String buttonText) {
+        JButton folderButton = new JButton(buttonText);
+
+        // Set custom folder icon
+        Icon folderIcon = UIManager.getIcon("FileView.directoryIcon");
+        folderButton.setIcon(folderIcon);
+
+        // Set button appearance
+        folderButton.setBorderPainted(false);
+        folderButton.setFocusPainted(false);
+        folderButton.setContentAreaFilled(false);
+        folderButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Add mouse listener to highlight the folder button on hover
+        folderButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                folderButton.setContentAreaFilled(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                folderButton.setContentAreaFilled(false);
+            }
+        });
+
+        return folderButton;
+    }
+
+    private JButton createFileButton(String buttonText, Icon icon) {
+        JButton fileButton = new JButton(buttonText);
+
+        // Set custom file icon
+        fileButton.setIcon(icon);
+
+        // Set button appearance
+        fileButton.setBorderPainted(false);
+        fileButton.setFocusPainted(false);
+        fileButton.setContentAreaFilled(false);
+        fileButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        // Add mouse listener to highlight the file button on hover
+        fileButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                fileButton.setContentAreaFilled(true);
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                fileButton.setContentAreaFilled(false);
+            }
+        });
+
+        return fileButton;
+    }
+
+    private JButton createMediumButton(JButton button) {
+        // Set medium tile size
+        Dimension buttonSize = new Dimension(20, 20);
+        button.setPreferredSize(buttonSize);
+        button.setMaximumSize(buttonSize);
+        button.setMinimumSize(buttonSize);
+
+        return button;
+    }
+
+    public void createViewOptions() {
+        JPanel optionsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JButton viewOptionsButton = new JButton("View Options");
+
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem listViewItem = new JMenuItem("List View");
+        JMenuItem gridViewItem = new JMenuItem("Grid View");
+
+        listViewItem.addActionListener(e -> {
+            currentViewOption = LIST_VIEW;
+            displayFiles(fileTextArea);
+        });
+
+        gridViewItem.addActionListener(e -> {
+            currentViewOption = GRID_VIEW;
+            displayFiles(fileTextArea);
+        });
+
+        popupMenu.add(listViewItem);
+        popupMenu.add(gridViewItem);
+
+        viewOptionsButton.addActionListener(e -> popupMenu.show(viewOptionsButton, 0, viewOptionsButton.getHeight()));
+
+        optionsPanel.add(viewOptionsButton);
+
+        // Add optionsPanel to your main UI frame or panel
+        projectFrame.add(optionsPanel, BorderLayout.NORTH);
+    }
+
 
     private boolean isFolder(String filePath) {
         File file = new File(filePath);
@@ -168,6 +279,27 @@ public class Project {
                         break;
                     case "xlsx":
                         openFileWithDefaultApplication(file);
+                        break;
+                    case "pptx":
+                        openFileWithDefaultApplication(file);
+                        break;
+                    case "pdf":
+                        openFileWithDefaultApplication(file);
+                        break;
+                    case "png":
+                        openFileWithDefaultApplication(file);
+                        break;
+                    case "jpg":
+                        openFileWithDefaultApplication(file);
+                        break;
+                    case "jpeg":
+                        openFileWithDefaultApplication(file);
+                        break;
+                    case "gif":
+                        openFileWithDefaultApplication(file);
+                        break;
+                    case "java":
+                        openTextFile(file);
                         break;
                     default:
                         JOptionPane.showMessageDialog(null, "Unsupported file format: " + fileExtension);
