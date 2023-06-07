@@ -1,9 +1,11 @@
 package model;
 
 import java.math.BigDecimal;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * This class will make a new object that will allow the GUI to pull information
@@ -18,8 +20,8 @@ public class BudgetList {
 	/**A new list that will hold all of the items*/
 	private List<Item> BudgetList = new ArrayList<Item>();
 	
-	/**The total of all of the items combined*/
-	private BigDecimal myTotal = BigDecimal.ZERO;
+	/**The amount left after all of the bought items are subtracted from the budget*/
+	private BigDecimal myBudgetLeft;
 	
 	/**The name of the budget planner*/
 	private String myName;
@@ -44,8 +46,8 @@ public class BudgetList {
 	 * 
 	 * @param theItemList Takes an item list then will calculate the budget
 	 */
-	public void calculateTotal(List<Item> theItemList) {
-		myTotal = BigDecimal.ZERO;
+	public BigDecimal calculateTotal(List<Item> theItemList) {
+		BigDecimal total = BigDecimal.ZERO;
 		final Iterator<Item> itr = theItemList.iterator();
 		while(itr.hasNext()) {
 			final Item theItem = itr.next();
@@ -54,8 +56,11 @@ public class BudgetList {
 			final BigDecimal theQuantity = BigDecimal.valueOf(theItem.getQuantity());
 			final BigDecimal thePrice = theItem.getPrice().multiply(theQuantity);
 			
-			myTotal.add(thePrice);
+			total = total.add(thePrice);
+			
 		}
+		myBudgetLeft = myBudget.subtract(total);
+		return myBudgetLeft;
 	}
 	
 	/**
@@ -74,21 +79,26 @@ public class BudgetList {
 		myBudget = theBudget;
 	}
 	
+	public void addBackToBudget(BigDecimal addBack) {
+		myBudgetLeft = addBack.add(myBudgetLeft);
+	}
+	
 	/**
 	 * Returns the budget - total = money left
 	 * @return The money left from the items that they are planning to buy to display the amount of money left
 	 */
-	public BigDecimal getBudgetMinusTotal() {
-		return myBudget.subtract(myTotal);
-	}
+//	public BigDecimal getBudgetMinusTotal() {
+//		myBudget = myBudget.subtract(myTotal);
+//		return myBudget;
+//	}
 	
 	/**
 	 * Returns if their budget left is positive or not
 	 * @return
 	 */
-	public boolean isPositive() {
-		return myBudget.subtract(myTotal).compareTo(BigDecimal.ZERO) > -1;
-	}
+//	public boolean isPositive() {
+//		return myBudget.subtract(myTotal).compareTo(BigDecimal.ZERO) > -1;
+//	}
 	
 	/**
 	 * 
@@ -102,9 +112,9 @@ public class BudgetList {
 	 * 
 	 * @return The total of the budget planner
 	 */
-	public BigDecimal getTotal() {
-		return myTotal;
-	}
+//	public BigDecimal getTotal() {
+//		return myTotal;
+//	}
 	
 	/**
 	 * 
