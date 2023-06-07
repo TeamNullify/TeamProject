@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.Locale;
 
@@ -32,7 +33,7 @@ public final class Item {
 	 */
 	public Item(String theName, BigDecimal thePrice, int theQuantity/*, int thePriority*/) {
 		myName = theName;
-		myPrice = thePrice; 
+		myPrice = thePrice.setScale(2, RoundingMode.HALF_EVEN);
 		myQuantity = theQuantity;
 		//myPriority = thePriority;
 	}
@@ -78,7 +79,8 @@ public final class Item {
 	 * @param thePrice The price of the item that the user will input
 	 */
 	public void setPrice(BigDecimal thePrice) {
-		myPrice = thePrice;
+			
+		myPrice = thePrice.setScale(2, RoundingMode.HALF_EVEN);
 	}
 	
 	/**
