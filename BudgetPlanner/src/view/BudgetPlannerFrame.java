@@ -60,7 +60,6 @@ public class BudgetPlannerFrame extends JFrame {
 	/**The budget that the user will input to be sent into the */
 	private double myBudget;
 	
-	private JSONObject obj;
 	
 	private String myBudgetName;
 	
