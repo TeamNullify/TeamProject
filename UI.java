@@ -7,21 +7,24 @@ import java.util.regex.Pattern;
 public class UI implements ActionListener {
 
     public static boolean userInfoSet = false;
+    JFrame window;
 
     public Component buildUI() {
 
-        JFrame window = new JFrame("Home Renovation Tool");
+        window = new JFrame("Home Renovation Tool");
         window.setSize(400, 300);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.setLocationRelativeTo(null);
         // window.pack();
+
+
 
         //MENU BAR
 
         JMenuBar menuBar = new JMenuBar();
         JMenu menu = new JMenu("Help");  
         JMenuItem aboutButton = new JMenuItem("About");  
-        aboutButton.addActionListener(this);
+        //aboutButton.addActionListener(this);
         menu.add(aboutButton);
         menuBar.add(menu);
         window.setJMenuBar(menuBar);
@@ -82,14 +85,46 @@ public class UI implements ActionListener {
                     UserInfo.setEmail(email);
                     userInfoSet = true;
                     userInfoInput.dispose(); // Add this line to close the dialog box
+
+
                     window.setVisible(true);
                 }
             });
 
             userInfoInput.setVisible(true);
         }
+
+        // FileFinder
+        JButton foldersButton= new JButton("Folders");
+        foldersButton.setBounds(50,50,50,50);
+        window.add(foldersButton);
+        foldersButton.addActionListener(this);
+        foldersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                window.setVisible(false);
+                FileFinder fileFinder=new FileFinder("Ahmed");
+                //fileFinder.buildFileFinder();
+            }
+        });
+
+
+
+
+
+
+
+
+
+
+
+
         return aboutButton;
 
+    }
+
+    public void setWindowVisibale(){
+        window.setVisible(true);
     }
     /**Checks if a given string is a valid email address using regular expressions.
      *@param email the email address to be checked
