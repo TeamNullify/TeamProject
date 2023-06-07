@@ -24,29 +24,6 @@ public class FileFinder implements ActionListener {
 
         buildInitialUi();
     }
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource()== createNewFolder) {
-            String folderName = JOptionPane.showInputDialog("insert folderName");
-            if (!folderName.equals(null)){
-                myList.addElement(folderName);
-            try {
-                infoLoaderWriter.updateMapFolder(userName, folderName);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
-            // openFolder.setBorderPainted(true);
-        }
-        }
-        else if (e.getSource()== openFolder) {
-            if (jList.getSelectedIndex()!=-1){
-                window.setVisible(false);
-                openFolder(jList.getSelectedValue());
-            }
-        }
-        else{
-            window.setVisible(false);
-        }
-    }
 
     public void openFolder(String folderName) {
         DefaultListModel myList2 =new DefaultListModel<>();;
@@ -69,7 +46,6 @@ public class FileFinder implements ActionListener {
         JButton openFile = new JButton("open file");
         openFile.setBounds(50,100,100,50);
         openFile.setLocation(200,200);
-        //openFile.setBorderPainted(false);
 
         JButton createNewFile= new JButton("create file");
         createNewFile.setBounds(50,100,100,50);
@@ -86,7 +62,6 @@ public class FileFinder implements ActionListener {
                 window.setVisible(true);
             }
         });
-       // String content;
         createNewFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -101,7 +76,6 @@ public class FileFinder implements ActionListener {
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
-                    // openFile.setBorderPainted(true);
                 }
             }
             }
@@ -110,7 +84,6 @@ public class FileFinder implements ActionListener {
         openFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-
                 int i=0;
                 if (list2.getSelectedIndex()!=-1){
                    Folder folder= infoLoaderWriter.getMap().get(userName).getFolders().get(index);
@@ -125,7 +98,6 @@ public class FileFinder implements ActionListener {
                        counter++;
                    }
                 }
-
                 JOptionPane.showMessageDialog(null,infoLoaderWriter.getMap().get(userName).getFolders().get(index).getFiles().get(i).getContent());
             }
         });
@@ -156,9 +128,9 @@ public class FileFinder implements ActionListener {
         createNewFolder.setBounds(50,100,100,50);
         createNewFolder.setLocation(300,200);
 
-        home=new JButton("Home");
+        /*home=new JButton("Home");
         home.setBounds(50,100,100,50);
-        home.setLocation(100,200);
+        home.setLocation(100,200);*/
 
         myList=new DefaultListModel<>();
         fillFolders();
@@ -171,14 +143,35 @@ public class FileFinder implements ActionListener {
         window.add(panel1,BorderLayout.SOUTH);
         panel1.add(createNewFolder);
         panel1.add(openFolder);
-        panel1.add(home);
+       // panel1.add(home);
         window.add(scrollPane);
         window.setVisible(true);
 
         createNewFolder.addActionListener(this);
         openFolder.addActionListener(this);
-        home.addActionListener(this);
+       // home.addActionListener(this);
     }
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()== createNewFolder) {
+            String folderName = JOptionPane.showInputDialog("insert folderName");
+            if (!folderName.equals(null)){
+                myList.addElement(folderName);
+                try {
+                    infoLoaderWriter.updateMapFolder(userName, folderName);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        else if (e.getSource()== openFolder) {
+            if (jList.getSelectedIndex()!=-1){
+                window.setVisible(false);
+                openFolder(jList.getSelectedValue());
+            }
+        }
+
+    }
+
     private ListModel<String> fillFolders(){
         Iterator<Folder> iterator=infoLoaderWriter.getMap().get("Ahmed").getFolders().iterator();
 
