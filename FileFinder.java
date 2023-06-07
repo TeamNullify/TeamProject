@@ -25,15 +25,17 @@ public class FileFinder implements ActionListener {
         buildInitialUi();
     }
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource()== createNewFolder){
+        if (e.getSource()== createNewFolder) {
             String folderName = JOptionPane.showInputDialog("insert folderName");
-           myList.addElement(folderName);
+            if (!folderName.equals(null)){
+                myList.addElement(folderName);
             try {
-                infoLoaderWriter.updateMapFolder(userName,folderName);
+                infoLoaderWriter.updateMapFolder(userName, folderName);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
             // openFolder.setBorderPainted(true);
+        }
         }
         else if (e.getSource()== openFolder) {
             if (jList.getSelectedIndex()!=-1){
@@ -88,15 +90,20 @@ public class FileFinder implements ActionListener {
         createNewFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String fileName = JOptionPane.showInputDialog("insert folderName");
+                String fileName = JOptionPane.showInputDialog("insert fileName");
+                if (!fileName.equals(null)){
+
                 String content = JOptionPane.showInputDialog("insert description");
-                myList2.addElement(fileName);
-                try {
-                    infoLoaderWriter.updateMapFile(userName,folderName,fileName,content);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
+                if (!content.equals(null)) {
+                    myList2.addElement(fileName);
+                    try {
+                        infoLoaderWriter.updateMapFile(userName, folderName, fileName, content);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                    // openFile.setBorderPainted(true);
                 }
-                // openFile.setBorderPainted(true);
+            }
             }
         });
 
