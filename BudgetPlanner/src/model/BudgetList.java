@@ -92,18 +92,11 @@ public class BudgetList {
 	 * Returns the budget - total = money left
 	 * @return The money left from the items that they are planning to buy to display the amount of money left
 	 */
-//	public BigDecimal getBudgetMinusTotal() {
-//		myBudget = myBudget.subtract(myTotal);
-//		return myBudget;
-//	}
 	
 	/**
 	 * Returns if their budget left is positive or not
 	 * @return
 	 */
-//	public boolean isPositive() {
-//		return myBudget.subtract(myTotal).compareTo(BigDecimal.ZERO) > -1;
-//	}
 	
 	/**
 	 * 
@@ -113,13 +106,7 @@ public class BudgetList {
 		return myName;
 	}
 	
-	/**
-	 * 
-	 * @return The total of the budget planner
-	 */
-//	public BigDecimal getTotal() {
-//		return myTotal;
-//	}
+
 	
 	/**
 	 * 
@@ -127,10 +114,6 @@ public class BudgetList {
 	 */
 	public BigDecimal getBudget() {
 		return myBudget;
-	}
-	
-	public boolean isBudgetEmpty() {
-		return myBudget.equals(null);
 	}
 	
 	
@@ -141,9 +124,15 @@ public class BudgetList {
 		BudgetList.clear();
 	}
 	
+	/**
+	 * Puts all of the necessary information such as budget, name, and items into a JSON file
+	 * Allows the data to be saved to be used later on 
+	 * @param theList The list of items that will be transferred to a json file
+	 */
 	@SuppressWarnings("unchecked")
 	public void JsonWriter(ArrayList<Item> theList) {
-
+		
+		
 		JSONArray jsonarray = new JSONArray();
 		for(int i = 0; i < theList.size(); i++) {
 			JSONObject obj = new JSONObject();
@@ -159,7 +148,7 @@ public class BudgetList {
 		myEverything.put("budget", myBudget);
 		myEverything.put("items", jsonarray);
 		
-		try (FileWriter file = new FileWriter("./", true)){
+		try (FileWriter file = new FileWriter("Budget.JSON", false)){
 			file.write(myEverything.toString());
 			
 		} catch(Exception e) {
