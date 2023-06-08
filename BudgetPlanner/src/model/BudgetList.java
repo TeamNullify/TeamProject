@@ -13,7 +13,7 @@ import org.json.simple.JSONObject;
  * This class will make a new object that will allow the GUI to pull information
  * Will do calculations for the total, store the name, store the budget, and all of the item objects
  * @author Nathaniel Mann
- * @version v0.1
+ * @version v1.0
  *
  */
 
