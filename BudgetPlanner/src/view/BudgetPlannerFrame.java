@@ -38,7 +38,7 @@ import model.Item;
  * A GUI class that will take the input from the user to make items and other things
  * Then it will display all of the information to the user in the GUI
  * @author Nathaniel Mann
- * @version v0.2
+ * @version v1.0
  *
  */
 
