@@ -8,7 +8,7 @@ import java.util.Locale;
 /**
  * 
  * @author Nathaniel Mann
- * @version v0.1
+ * @version v1.0
  * This item class will help instantatiate an object with a name, price, and quantity
  * It also has getters & setters to get the fields
  */
@@ -62,9 +62,6 @@ public final class Item {
 		return myQuantity;
 	}
 	
-//	public int getPriority() {
-//		return myPriority;
-//	}
 	
 	/**
 	 * Changes the name of the item if the user wants to edit it 
@@ -97,11 +94,11 @@ public final class Item {
 	 */
 	public String toString() {
 		final StringBuilder builder = new StringBuilder(300);
-		builder.append("Name of item: ");
+		builder.append("Name of the item: ");
 		builder.append(myName);
-		builder.append("Price of Item: ");
+		builder.append("              Price of Item: ");
 		builder.append(numberFormat(myPrice));
-		builder.append("Quantity: ");
+		builder.append("              Quantity: ");
 		builder.append(myQuantity);
 		return builder.toString();
 	}
@@ -111,7 +108,4 @@ public final class Item {
         return nf.format(thePrice);
     }
 	
-//	public void setPriority(int thePriority) {
-//		myPriority = thePriority;
-//	}
 }
