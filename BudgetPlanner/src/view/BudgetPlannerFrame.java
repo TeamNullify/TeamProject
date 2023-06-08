@@ -1,30 +1,38 @@
 package view;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.FileReader;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-
-
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 import model.BudgetList;
 import model.Item;
+
+
 
 /**
  * A GUI class that will take the input from the user to make items and other things
@@ -39,9 +47,10 @@ public class BudgetPlannerFrame extends JFrame {
 	
 	private JScrollPane jScroll = new JScrollPane();
 	
-	private JPanel jPanel = new JPanel(new FlowLayout());
+	private JPanel jPanel;
 	
 	private JPanel southJPanel = new JPanel(new FlowLayout());
+	
 	
 	private static final long serialVersionUID = -5920717045729015756L;
 	
@@ -52,7 +61,7 @@ public class BudgetPlannerFrame extends JFrame {
 	private static final Dimension SCREEN_SIZE = KIT.getScreenSize();
 	
 	/**Creates a new list that will hold the items the user creates*/
-	private static List<Item> ITEM_LIST = new ArrayList<>();
+	private static ArrayList<Item> ITEM_LIST = new ArrayList<>();
 	
 	/**Will make a new object of the new BudgetList to do calculations and hold other information*/
 	private final BudgetList myItems;
@@ -60,18 +69,24 @@ public class BudgetPlannerFrame extends JFrame {
 	/**The budget that the user will input to be sent into the */
 	private double myBudget;
 	
-	
+	/**Name of the budget planner */
 	private String myBudgetName;
 	
-	private JButton totalButton;
+	/**Save button that is used throughout the program*/
+	private JButton mySaveButton;
 	
-	private JButton budgetLeft;
+	/**A label of how much of the budget is left*/
+	private JLabel budgetLeft;
 	
 	/**
-	 * A constructor that will start the GUI 
+	 * A constructor that will start the GUI along with some of its components
 	 */
 	public BudgetPlannerFrame(){
 		super();
+		
+		jPanel = new JPanel();
+		jPanel.setLayout(new BoxLayout(jPanel, BoxLayout.Y_AXIS));
+
 		
 		this.myItems = new BudgetList();
 		
@@ -79,15 +94,16 @@ public class BudgetPlannerFrame extends JFrame {
 		
 		myBudgetName = "";
 		
-		totalButton = new JButton("$0.00");
+		mySaveButton = new JButton("Save");
 		
-		budgetLeft = new JButton("");
+		budgetLeft = new JLabel("");
 		
 		startUp();
 	}
 	
 	/**
 	 * A start up that will run all of the necessary methods and display the necessary information to the user
+	 * Depending on if there is a JSON file there or not, it can display users previous budget planner
 	 */
 	protected void startUp() {
 		
@@ -96,23 +112,69 @@ public class BudgetPlannerFrame extends JFrame {
 		setLocation(SCREEN_SIZE.width / 2 - getWidth() / 2,
 				SCREEN_SIZE.height / 2 - getHeight() / 2);
 		
-		setName();		
-		if(myBudgetName == "") {
-			return;
-		}
-		setBudget();
-		if(myBudget == 0) {
-			return;
-		}
+		File file = new File("Budget.JSON");
 		
 		jScroll.getViewport().add(jPanel);
 		jScroll.setVisible(true);
 		jScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		jScroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		add(jScroll, BorderLayout.CENTER);
 		
+		//This will check if the said file exists and if it does it will
+		//input all of the needed information for the budget planner
+		//Such as name, budget, and items included in it
+		if(file.exists()) {
+			JSONParser parser = new JSONParser();
+			
+			try {
+				Object obj = parser.parse(new FileReader(file));
+				
+				JSONObject jsonObject = (JSONObject) obj;
+				String name = (String) jsonObject.get("name");
+				double budget = (double) jsonObject.get("budget");
+				myItems.setName(name);
+				myItems.setBudget(BigDecimal.valueOf(budget));
+				
+				JSONArray itemsArray = (JSONArray) jsonObject.get("items");
+				
+				for(Object itemObj : itemsArray) {
+					JSONObject items = (JSONObject) itemObj;
+					JSONObject item = (JSONObject) items.get("item");
+
+					
+					String itemName = (String) item.get("name");
+					int quantity = Integer.parseInt(item.get("quantity").toString());
+					double price = Double.parseDouble(item.get("price").toString());
+					
+					
+					Item theItem = new Item(itemName, BigDecimal.valueOf(price), quantity);
+					ITEM_LIST.add(theItem);
+					itemToPanel(theItem);
+				}
+				showBudgetLeft();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		} else {
+		
+			setName();		
+			if(myBudgetName == "") {
+				return;
+			}
+			setBudget();
+			if(myBudget == 0) {
+				return;
+			} 
+			budgetLeft = new JLabel("Budget Left: " + numberFormat(myItems.getBudget()));
+		}
+		
+		
+		
 		southJPanel.setVisible(true);
-		budgetLeft = new JButton(numberFormat(myItems.getBudget()));
+		
+		budgetLeft.setFont(budgetLeft.getFont().deriveFont(20f));
 		southJPanel.add(budgetLeft);
+		
 		add(southJPanel, BorderLayout.SOUTH);
 		
 
@@ -121,8 +183,15 @@ public class BudgetPlannerFrame extends JFrame {
 		final JButton nameButton = new JButton(myItems.getName());
 		final JButton addItemButton = new JButton("Add item...");
 		thePanel.add(nameButton);
+		nameButton.setFont(nameButton.getFont().deriveFont(20f));
 		thePanel.add(budgetButton);
+		budgetButton.setFont(budgetButton.getFont().deriveFont(20f));
 		thePanel.add(addItemButton);
+		addItemButton.setFont(addItemButton.getFont().deriveFont(20f));
+		thePanel.add(mySaveButton);
+		mySaveButton.setFont(mySaveButton.getFont().deriveFont(20f));
+		
+		
 		
 		nameButton.addActionListener(new ActionListener() {
 			@Override
@@ -144,6 +213,13 @@ public class BudgetPlannerFrame extends JFrame {
 			@Override 
 			public void actionPerformed(final ActionEvent theEvent) {
 				addItem();
+			}
+		});
+		
+		mySaveButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(final ActionEvent theEvent) {
+				myItems.JsonWriter(ITEM_LIST);
 			}
 		});
 		
@@ -307,7 +383,7 @@ public class BudgetPlannerFrame extends JFrame {
 	   							"Please input a positive value", 
 	   							"Input Error", JOptionPane.ERROR_MESSAGE);
 	    				
-	    			} else if (itemPrice.compareTo(myItems.calculateTotal(ITEM_LIST)) == 1){
+	    			} else if (itemPrice.multiply(BigDecimal.valueOf(itemQuantity)).compareTo(myItems.calculateTotal(ITEM_LIST)) == 1){
 	    				JOptionPane.showMessageDialog(null, 
 	    						"This item will put you over your budget, "
 	    						+ "please enter a different item or change your budget",
@@ -337,12 +413,13 @@ public class BudgetPlannerFrame extends JFrame {
 	    thePanel.add(save);
 	    itemInfo.add(thePanel, BorderLayout.SOUTH);
 
-		itemPanel.add(thePriceInstruction);
 		
-		itemPanel.add(thePrice);
 		
 		itemPanel.add(theNameInstruction);
 		itemPanel.add(theName);
+		
+		itemPanel.add(thePriceInstruction);
+		itemPanel.add(thePrice);
 		
 		itemPanel.add(theQuantityInstruction);
 		itemPanel.add(theQuantity);
@@ -361,6 +438,11 @@ public class BudgetPlannerFrame extends JFrame {
 
 	}
 	
+	/**
+	 * Takes an item that has been created by the user and adds it to the panel 
+	 * Allows the item to be edited
+	 * @param theItem item to be added to the panel
+	 */
 	private void itemToPanel(Item theItem) {
 		JButton button = new JButton(theItem.toString());
 		button.addActionListener(new ActionListener() {
@@ -369,11 +451,19 @@ public class BudgetPlannerFrame extends JFrame {
 				addEditedItem(theItem, button);
 			}
 		});
+		button.setFont(button.getFont().deriveFont(30f));
+		button.setAlignmentX(Component.CENTER_ALIGNMENT);
 		jPanel.add(button);
 		jPanel.revalidate();
 		jPanel.repaint();
 	}
 	
+	/**
+	 * Allows the user to edit the item as needed, and it holds previous input
+	 * @param theItem item that will be edited by the user
+	 * @param theButton button that will be displayed on the panel
+	 * @return
+	 */
 	private Item addEditedItem(Item theItem, JButton theButton) {
 		
 		
@@ -469,11 +559,13 @@ public class BudgetPlannerFrame extends JFrame {
 	    itemInfo.add(thePanel, BorderLayout.SOUTH);
 
 	    
-		panel.add(thePriceInstruction);
-		panel.add(thePrice);
+		
 		
 		panel.add(theNameInstruction);
 		panel.add(theName);
+		
+		panel.add(thePriceInstruction);
+		panel.add(thePrice);
 		
 		panel.add(theQuantityInstruction);
 		panel.add(theQuantity);
@@ -507,7 +599,7 @@ public class BudgetPlannerFrame extends JFrame {
 	   							"Please input a positive value", 
 	   							"Input Error", JOptionPane.ERROR_MESSAGE);
 	    				
-	    			} else if (itemPrice.compareTo(myItems.calculateTotal(ITEM_LIST)) == 1) {
+	    			} else if (itemPrice.multiply(BigDecimal.valueOf(itemQuantity)).compareTo(myItems.calculateTotal(ITEM_LIST)) == 1) {
 		    				JOptionPane.showMessageDialog(null, 
 		    						"This item will put you over your budget, "
 		    						+ "please enter a different item or change your budget",
@@ -540,6 +632,7 @@ public class BudgetPlannerFrame extends JFrame {
 		itemInfo.add(panel);
 		itemInfo.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
+
 		itemInfo.pack();
 		
 		itemInfo.setLocationRelativeTo(null);
@@ -547,11 +640,23 @@ public class BudgetPlannerFrame extends JFrame {
 		return theItem;
 	}
 	
+	/**
+	 * Changes the amount input by the user to have proper formatting
+	 * @param thePrice bigDecimal number that will be changed to proper form
+	 * @return the formatted bigDecimal number
+	 */
 	private String numberFormat(final BigDecimal thePrice) {
         final NumberFormat nf = NumberFormat.getCurrencyInstance(Locale.US);
         return nf.format(thePrice);
     }
 	
+	/**
+	 * 
+	 */
+	
+	/**
+	 * Changes the amount of budget left displayed by the JLabel
+	 */
 	private void showBudgetLeft() {
 		budgetLeft.setText("Budget Left: " + numberFormat(myItems.calculateTotal(ITEM_LIST)));
 		southJPanel.revalidate();
