@@ -1,11 +1,13 @@
 package model;
 
+import java.io.FileWriter;
 import java.math.BigDecimal;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 /**
  * This class will make a new object that will allow the GUI to pull information
@@ -28,6 +30,9 @@ public class BudgetList {
 	
 	/**The budget from the user input also put in bigDecimal form to allow for money to be calculated properly*/
 	private BigDecimal myBudget;
+	
+	private JSONObject myEverything;
+	
 	
 	/**A constructor*/
 	public BudgetList() {
@@ -136,4 +141,29 @@ public class BudgetList {
 		BudgetList.clear();
 	}
 	
+	@SuppressWarnings("unchecked")
+	public void JsonWriter(ArrayList<Item> theList) {
+
+		JSONArray jsonarray = new JSONArray();
+		for(int i = 0; i < theList.size(); i++) {
+			JSONObject obj = new JSONObject();
+            JSONObject objItem =  new JSONObject();
+            objItem.put("name", theList.get(i).getName());
+            objItem.put("price", theList.get(i).getPrice());
+            objItem.put("quantity", theList.get(i).getQuantity());
+            obj.put("item", objItem);
+            jsonarray.add(obj);
+		}
+		myEverything = new JSONObject();
+		myEverything.put("name", myName);
+		myEverything.put("budget", myBudget);
+		myEverything.put("items", jsonarray);
+		
+		try (FileWriter file = new FileWriter("./", true)){
+			file.write(myEverything.toString());
+			
+		} catch(Exception e) {
+			System.out.println(e);
+		}
+	}
 }
