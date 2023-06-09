@@ -9,6 +9,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.RoundRectangle2D;
+import java.io.IOException;
 import java.util.Calendar;
 
 import model.Project;
@@ -26,6 +27,7 @@ public class WindowFrame {
     private JButton projectButton;
     private JButton budgetButton;
     private JButton calendarButton;
+    private JButton foldersButton;
     private Project project;
     public static boolean userInfoSet = false;
     private boolean calendarVisible = false;
@@ -42,6 +44,8 @@ public class WindowFrame {
         projectButton = createIconButton("Project", "TeamProject-Elroy/icons8-mac-folder-48.png");
         budgetButton = createIconButton("Budget", "TeamProject-Elroy/budget.jpg");
         calendarButton = createIconButton("Calendar", "TeamProject-Elroy/download.png");
+        foldersButton= createIconButton("Folders", "TeamProject-Elroy/folder.png");
+
         setupUI();
     }
 
@@ -186,6 +190,18 @@ public class WindowFrame {
         });
         customizeButton(calendarButton);
 
+        foldersButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+                    FileFinder fileFinder=new FileFinder(View.UserInfo.getName());
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+        customizeButton(foldersButton);
+
         GridBagConstraints buttonGbc = new GridBagConstraints();
         buttonGbc.gridx = 0;
         buttonGbc.gridy = 0;
@@ -204,6 +220,9 @@ public class WindowFrame {
 
         buttonGbc.gridy = 4;
         toolbarPanel.add(calendarButton, buttonGbc);
+
+        buttonGbc.gridy=5;
+        toolbarPanel.add(foldersButton,buttonGbc);
 
         window.setUndecorated(true);
         window.getRootPane().setWindowDecorationStyle(JRootPane.PLAIN_DIALOG);
