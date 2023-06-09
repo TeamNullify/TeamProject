@@ -4,6 +4,9 @@ import java.awt.Component;
 import java.awt.event.*;
 import java.util.regex.Pattern;
 
+/**
+* @author Christopher Yuan, Elroy Mbabazi, Anthony Green, Nathaniel Mann
+*/
 public class UI implements ActionListener {
 
     public static boolean userInfoSet = false;
