@@ -1,3 +1,7 @@
+/**
+* @author Christopher Yuan, Elroy Mbabazi, Anthony Green, Nathaniel Mann
+*/
+
 public class UserInfo {
     private static String userName;
     private static String userEmail;
