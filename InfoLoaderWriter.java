@@ -1,3 +1,7 @@
+/*
+class designer is Abdelrahman Abudayyah
+ */
+
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.json.simple.JSONArray;

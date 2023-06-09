@@ -1,3 +1,8 @@
+/*
+class designer is Abdelrahman Abudayyah
+ */
+
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
