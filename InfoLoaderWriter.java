@@ -1,5 +1,8 @@
 /*
 class designer is Abdelrahman Abudayyah
+
+ this class where read and write using JSON
+
  */
 
 import org.json.simple.parser.JSONParser;
@@ -11,15 +14,29 @@ import java.io.*;
 import java.util.*;
 
 public class InfoLoaderWriter {
-    //private String userInfoFilePath = "/Users/abood/Desktop/test.json";
+    /* userInfoFilePath is the path where the program  is going to read from  and write to
+     you can adjust it to a path on your computer when you read the code
+     then when you sign up with a new username it will create a new user in this file path
+       on your computer*/
+
     private String userInfoFilePath = "/Users/abood/Desktop/Untitled-1.json";
-    private String writeFilePath="/Users/abood/Desktop/Untitled-1.json";
 
     private static Map<String, User> info = new HashMap<>();
 
     public InfoLoaderWriter(String userName) {
         info= getInfo();
-       // System.out.println(info.toString());
+
+        /*
+        if(isNewUser){
+        updateMapUser(userName);
+
+        }
+        else(){
+                info= getInfo();
+
+        }
+
+         */
 
     }
 
@@ -170,7 +187,7 @@ public Map<String,User> getMap(){
 
         JSONObject jsonObjects=new JSONObject();
         jsonObjects.put("Users",usersList);
-        FileWriter file=new FileWriter(writeFilePath);
+        FileWriter file=new FileWriter(userInfoFilePath);
         file.write(jsonObjects.toJSONString());
         file.close();
         System.out.println(jsonObjects.toJSONString());

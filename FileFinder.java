@@ -1,5 +1,9 @@
 /*
 class designer is Abdelrahman Abudayyah
+this class build the UI for FileFinder user story
+when you press the folder button in the main frame of the programe this code runs
+if its a returning user it reads everything from the file patch and it pulls all the files and folders
+but if its a new user it creates a new user and write it in the file path you choose
  */
 
 
@@ -14,7 +18,6 @@ import java.util.Iterator;
 public class FileFinder implements ActionListener {
     JFrame window;
     DefaultListModel<String> myList;
-    //DefaultListModel<String> myList2;
     JList<String> jList;
     JButton createNewFolder;
     JButton openFolder;
@@ -25,11 +28,92 @@ public class FileFinder implements ActionListener {
 
     public  FileFinder(String userName){
         this.userName=userName;
-        infoLoaderWriter =new InfoLoaderWriter("Ahmed");
+        infoLoaderWriter =new InfoLoaderWriter(userName);
 
         buildInitialUi();
     }
+    private void buildInitialUi(){
+        window = new JFrame("Project ");
+        window.setSize(400, 300);
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        window.setLocationRelativeTo(null);
+        window.setLayout(new BorderLayout());
 
+        JPanel panel1= new JPanel();
+        panel1.setPreferredSize(new Dimension(50,50));
+
+        openFolder = new JButton("open folder");
+        openFolder.setBounds(50,100,100,50);
+        openFolder.setLocation(200,200);
+
+
+        createNewFolder = new JButton("create folder");
+        createNewFolder.setBounds(50,100,100,50);
+        createNewFolder.setLocation(300,200);
+
+        /*home=new JButton("Home");
+        home.setBounds(50,100,100,50);
+        home.setLocation(100,200);*/
+
+        myList=new DefaultListModel<>();
+        /*
+        if(isNewUser){
+
+        }
+        else(){
+        fillFolders();
+        }
+
+        */
+
+        fillFolders();
+
+        jList = new JList<>(myList);
+        jList.setFixedCellHeight(25);
+        jList.setFixedCellWidth(25);
+        JScrollPane scrollPane = new JScrollPane(jList,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+        window.add(panel1,BorderLayout.SOUTH);
+        panel1.add(createNewFolder);
+        panel1.add(openFolder);
+        // panel1.add(home);
+        window.add(scrollPane);
+        window.setVisible(true);
+
+        createNewFolder.addActionListener(this);
+        openFolder.addActionListener(this);
+        // home.addActionListener(this);
+    }
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource()== createNewFolder) {
+            String folderName = JOptionPane.showInputDialog("insert folderName");
+            if (!folderName.equals(null)){
+                myList.addElement(folderName);
+                try {
+                    infoLoaderWriter.updateMapFolder(userName, folderName);
+                } catch (IOException ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+        else if (e.getSource()== openFolder) {
+            if (jList.getSelectedIndex()!=-1){
+                window.setVisible(false);
+                openFolder(jList.getSelectedValue());
+            }
+        }
+
+    }
+    private ListModel<String> fillFolders(){
+        Iterator<Folder> iterator=infoLoaderWriter.getMap().get(userName).getFolders().iterator();
+
+        while (iterator.hasNext()) {
+            String s=iterator.next().getName();
+            myList.addElement(s);
+        }
+
+        return myList;
+    }
     public void openFolder(String folderName) {
         DefaultListModel myList2 =new DefaultListModel<>();;
         fillFiles(myList2,folderName);
@@ -73,16 +157,16 @@ public class FileFinder implements ActionListener {
                 String fileName = JOptionPane.showInputDialog("insert fileName");
                 if (!fileName.equals(null)){
 
-                String content = JOptionPane.showInputDialog("insert description");
-                if (!content.equals(null)) {
-                    myList2.addElement(fileName);
-                    try {
-                        infoLoaderWriter.updateMapFile(userName, folderName, fileName, content);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
+                    String content = JOptionPane.showInputDialog("insert description");
+                    if (!content.equals(null)) {
+                        myList2.addElement(fileName);
+                        try {
+                            infoLoaderWriter.updateMapFile(userName, folderName, fileName, content);
+                        } catch (IOException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
-            }
             }
         });
 
@@ -91,17 +175,17 @@ public class FileFinder implements ActionListener {
             public void actionPerformed(ActionEvent e) {
                 int i=0;
                 if (list2.getSelectedIndex()!=-1){
-                   Folder folder= infoLoaderWriter.getMap().get(userName).getFolders().get(index);
-                   Iterator<File>iterator=folder.getFiles().iterator();
-                   int counter=0;
+                    Folder folder= infoLoaderWriter.getMap().get(userName).getFolders().get(index);
+                    Iterator<File>iterator=folder.getFiles().iterator();
+                    int counter=0;
                     i=0;
-                   while (iterator.hasNext()) {
-                       if (iterator.next().getName().equals(list2.getSelectedValue())) {
-                           i = counter;
-                           break;
-                       }
-                       counter++;
-                   }
+                    while (iterator.hasNext()) {
+                        if (iterator.next().getName().equals(list2.getSelectedValue())) {
+                            i = counter;
+                            break;
+                        }
+                        counter++;
+                    }
                 }
                 JOptionPane.showMessageDialog(null,infoLoaderWriter.getMap().get(userName).getFolders().get(index).getFiles().get(i).getContent());
             }
@@ -114,87 +198,14 @@ public class FileFinder implements ActionListener {
         window2.add(scrollPane);
         window2.setVisible(true);
     }
-    private void buildInitialUi(){
-        window = new JFrame("Project ");
-        window.setSize(400, 300);
-        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        window.setLocationRelativeTo(null);
-        window.setLayout(new BorderLayout());
-
-        JPanel panel1= new JPanel();
-        panel1.setPreferredSize(new Dimension(50,50));
-
-        openFolder = new JButton("open folder");
-        openFolder.setBounds(50,100,100,50);
-        openFolder.setLocation(200,200);
-        //openFolder.setBorderPainted(false);
-
-        createNewFolder = new JButton("create folder");
-        createNewFolder.setBounds(50,100,100,50);
-        createNewFolder.setLocation(300,200);
-
-        /*home=new JButton("Home");
-        home.setBounds(50,100,100,50);
-        home.setLocation(100,200);*/
-
-        myList=new DefaultListModel<>();
-        fillFolders();
-
-        jList = new JList<>(myList);
-        jList.setFixedCellHeight(25);
-        jList.setFixedCellWidth(25);
-        JScrollPane scrollPane = new JScrollPane(jList,JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-
-        window.add(panel1,BorderLayout.SOUTH);
-        panel1.add(createNewFolder);
-        panel1.add(openFolder);
-       // panel1.add(home);
-        window.add(scrollPane);
-        window.setVisible(true);
-
-        createNewFolder.addActionListener(this);
-        openFolder.addActionListener(this);
-       // home.addActionListener(this);
-    }
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource()== createNewFolder) {
-            String folderName = JOptionPane.showInputDialog("insert folderName");
-            if (!folderName.equals(null)){
-                myList.addElement(folderName);
-                try {
-                    infoLoaderWriter.updateMapFolder(userName, folderName);
-                } catch (IOException ex) {
-                    ex.printStackTrace();
-                }
-            }
-        }
-        else if (e.getSource()== openFolder) {
-            if (jList.getSelectedIndex()!=-1){
-                window.setVisible(false);
-                openFolder(jList.getSelectedValue());
-            }
-        }
-
-    }
-
-    private ListModel<String> fillFolders(){
-        Iterator<Folder> iterator=infoLoaderWriter.getMap().get("Ahmed").getFolders().iterator();
-
-        while (iterator.hasNext()) {
-            String s=iterator.next().getName();
-            myList.addElement(s);
-        }
-
-        return myList;
-    }
     private void fillFiles(DefaultListModel listModel, String name){
-        Iterator<Folder> iterator=infoLoaderWriter.getMap().get("Ahmed").getFolders().iterator();
+        Iterator<Folder> iterator=infoLoaderWriter.getMap().get(userName).getFolders().iterator();
         String findFolder;
         Folder folder;
         int count=0;
-          /////
-         index=0;
-         ////
+        /////
+        index=0;
+        ////
         while (iterator.hasNext()){
             folder=iterator.next();
             findFolder=folder.getName();
@@ -204,11 +215,13 @@ public class FileFinder implements ActionListener {
             }
             count++;
         }
-        Iterator<File> iterator1=  infoLoaderWriter.getMap().get("Ahmed").getFolders().get(index).getFiles().iterator();
+        Iterator<File> iterator1=  infoLoaderWriter.getMap().get(userName).getFolders().get(index).getFiles().iterator();
         while (iterator1.hasNext()){
             String s=iterator1.next().getName();
             listModel.addElement(s);
         }
-      //  return listModel;
+        //  return listModel;
     }
+
+
 }

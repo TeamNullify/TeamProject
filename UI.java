@@ -100,11 +100,24 @@ public class UI implements ActionListener {
         window.add(foldersButton);
         foldersButton.addActionListener(this);
         foldersButton.addActionListener(new ActionListener() {
+
+
             @Override
             public void actionPerformed(ActionEvent e) {
                 window.setVisible(false);
+                /*
+            if(isNewUser){
+            FileFinder fileFinder=new FileFinder("Ahmed",true);
+
+
+            }
+
+            else{
+
+            }
+
+             */
                 FileFinder fileFinder=new FileFinder("Ahmed");
-                //fileFinder.buildFileFinder();
             }
         });
 
