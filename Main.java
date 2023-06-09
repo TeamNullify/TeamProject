@@ -1,3 +1,7 @@
+/**
+* @author Christopher Yuan, Elroy Mbabazi, Anthony Green, Nathaniel Mann
+*/
+
 import javax.swing.*;
 import java.awt.event.*;
 
