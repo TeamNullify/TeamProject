@@ -51,6 +51,7 @@ public class Project {
      * Opens the project frame and initializes the graphical user interface.
      */
     public void openProjectFrame() {
+        toolbarPanel.removeAll();
         projectFrame.setSize(1200, 900);
         projectFrame.setLocationRelativeTo(null);
 

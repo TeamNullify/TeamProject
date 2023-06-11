@@ -39,12 +39,12 @@ public class WindowFrame {
     public WindowFrame() {
         window = new JFrame("Home Renovation Tool");
         project = new Project(this);
-        profileButton = createIconButton("Profile", "TeamProject-Elroy/maleprofileicon.png");
-        exportButton = createIconButton("Export", "TeamProject-Elroy/Export-06.png");
-        projectButton = createIconButton("Project", "TeamProject-Elroy/icons8-mac-folder-48.png");
-        budgetButton = createIconButton("Budget", "TeamProject-Elroy/budget.jpg");
-        calendarButton = createIconButton("Calendar", "TeamProject-Elroy/download.png");
-        foldersButton= createIconButton("Folders", "TeamProject-Elroy/folder.png");
+        profileButton = createIconButton("Profile", "maleprofileicon.png");
+        exportButton = createIconButton("Export", "Export-06.png");
+        projectButton = createIconButton("Project", "icons8-mac-folder-48.png");
+        budgetButton = createIconButton("Budget", "budget.jpg");
+        calendarButton = createIconButton("Calendar", "download.png");
+        foldersButton= createIconButton("Folders", "folder.png");
 
         setupUI();
     }

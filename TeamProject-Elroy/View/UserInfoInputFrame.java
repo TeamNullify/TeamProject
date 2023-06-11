@@ -70,7 +70,8 @@ public class UserInfoInputFrame extends JFrame {
         getContentPane().setBackground(jetStream);
 
         JLabel label = new JLabel();
-        ImageIcon icon = new ImageIcon("TeamProject-Elroy/appface2.jpg");
+        ImageIcon icon = new ImageIcon("appface2.jpg");
+        
         Image image = icon.getImage();
         Image scaledImage = image.getScaledInstance(250, 400, java.awt.Image.SCALE_SMOOTH);
         icon = new ImageIcon(scaledImage);
@@ -143,7 +144,7 @@ public class UserInfoInputFrame extends JFrame {
         });
 
         // GitHub Button
-        JButton githubButton = createIconButton("GitHub", "TeamProject-Elroy/GitHub.png");
+        JButton githubButton = createIconButton("GitHub", "GitHub.png");
         githubButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
